@@ -28,7 +28,11 @@ vector<Process>& System::Processes() { return processes_; }
 std::string System::Kernel() { return kernel_; }
 
 // TODO: Return the system's memory utilization
-float System::MemoryUtilization() { return 0.0; }
+float System::MemoryUtilization() {
+   float memTotal = LinuxParser::MemoryUtilization();
+   return memTotal;
+  //return 0.0;
+}
 
 // TODO: Return the operating system name
 // std::string System::OperatingSystem() { return string(); }
