@@ -20,7 +20,7 @@ const std::string kPasswordPath{"/etc/passwd"};
 
 // Helpers
 template <typename T>
-T getValueFromFile(const std::string& filePath, const std::string& key); 
+T getValueFromFile(const std::string& filePath, const std::string& key);
 
 // System
 float MemoryUtilization();
