@@ -286,7 +286,7 @@ long LinuxParser::UpTime(int pid) {
     // Convert the start time from jiffies to seconds
     startTime /= sysconf(_SC_CLK_TCK);
 
-    return startTime;
+    return UpTime() - startTime;
 }
 
 vector<string> LinuxParser::CpuUtilization(int pid) {
