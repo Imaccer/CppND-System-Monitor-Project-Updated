@@ -2,6 +2,7 @@
 #include <unistd.h>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "linux_parser.h"
 
@@ -255,4 +256,35 @@ return "";
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid[[maybe_unused]]) { return 0; }
+long LinuxParser::UpTime(int pid) { 
+    std::ifstream statFile(kProcDirectory + std::to_string(pid) + kStatFilename);
+    if (!statFile.is_open()) {
+        std::cerr << "Error: Unable to open /proc/" << pid << "/stat" << std::endl;
+        return -1; // Return an error value
+    }
+
+    // Read the content of the stat file
+    std::string line;
+    std::getline(statFile, line);
+
+    // Close the file
+    statFile.close();
+
+    // Extract the start time from the content
+    std::istringstream linestream(line);
+    std::string ignore; // Variable to ignore unnecessary fields
+    long int startTime;
+
+    // Iterate through the fields until reaching the desired field (22nd field in this case)
+    for (int i = 1; i <= 21; ++i) {
+        linestream >> ignore;
+    }
+
+    // Extract the start time
+    linestream >> startTime;
+
+    // Convert the start time from jiffies to seconds
+    startTime /= sysconf(_SC_CLK_TCK);
+
+    return startTime;
+}
