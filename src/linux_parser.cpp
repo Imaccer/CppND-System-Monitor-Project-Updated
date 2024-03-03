@@ -1,8 +1,8 @@
 #include <dirent.h>
 #include <unistd.h>
+#include <iostream>
 #include <string>
 #include <vector>
-#include <iostream>
 
 #include "linux_parser.h"
 
@@ -216,24 +216,26 @@ string LinuxParser::Command(int pid) {
 
 // TODO: Read and return the memory used by a process
 // REMOVE: [[maybe_unused]] once you define the function
-//string LinuxParser::Ram(int pid[[maybe_unused]]) { return string(); }
-string LinuxParser::Ram(int pid) { 
-auto ram = getValueFromFile<int>(kProcDirectory + std::to_string(pid) + kStatusFilename, "VmSize:");
-int ramMB = ram* 0.001;
-return std::to_string(ramMB); 
+// string LinuxParser::Ram(int pid[[maybe_unused]]) { return string(); }
+string LinuxParser::Ram(int pid) {
+  auto ram = getValueFromFile<int>(
+      kProcDirectory + std::to_string(pid) + kStatusFilename, "VmSize:");
+  int ramMB = ram * 0.001;
+  return std::to_string(ramMB);
 }
 
 // TODO: Read and return the user ID associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
 // string LinuxParser::Uid(int pid[[maybe_unused]]) { return string(); }
 string LinuxParser::Uid(int pid) {
-  int uid = getValueFromFile<int>(kProcDirectory + std::to_string(pid) + kStatusFilename, "Uid:");
+  int uid = getValueFromFile<int>(
+      kProcDirectory + std::to_string(pid) + kStatusFilename, "Uid:");
   return std::to_string(uid);
 }
 
 // TODO: Read and return the user associated with a process
 // REMOVE: [[maybe_unused]] once you define the function
-string LinuxParser::User(int pid) { 
+string LinuxParser::User(int pid) {
   string username, x, uid;
   string line;
 
@@ -244,90 +246,92 @@ string LinuxParser::User(int pid) {
       std::istringstream linestream(line);
       while (linestream >> username >> x >> uid) {
         if (uid == Uid(pid)) {
-//          linestream >> username;  
+          //          linestream >> username;
           return username;
         }
       }
     }
   }
- 
-return ""; 
+
+  return "";
 }
 
 // TODO: Read and return the uptime of a process
 // REMOVE: [[maybe_unused]] once you define the function
-long LinuxParser::UpTime(int pid) { 
-    std::ifstream statFile(kProcDirectory + std::to_string(pid) + kStatFilename);
-    if (!statFile.is_open()) {
-        std::cerr << "Error: Unable to open /proc/" << pid << "/stat" << std::endl;
-        return -1; // Return an error value
-    }
+long LinuxParser::UpTime(int pid) {
+  std::ifstream statFile(kProcDirectory + std::to_string(pid) + kStatFilename);
+  if (!statFile.is_open()) {
+    std::cerr << "Error: Unable to open /proc/" << pid << "/stat" << std::endl;
+    return -1;  // Return an error value
+  }
 
-    // Read the content of the stat file
-    string line;
-    std::getline(statFile, line);
+  // Read the content of the stat file
+  string line;
+  std::getline(statFile, line);
 
-    // Close the file
-    statFile.close();
+  // Close the file
+  statFile.close();
 
-    // Extract the start time from the content
-    std::istringstream linestream(line);
-    string ignore; // Variable to ignore unnecessary fields
-    long int startTime;
+  // Extract the start time from the content
+  std::istringstream linestream(line);
+  string ignore;  // Variable to ignore unnecessary fields
+  long int startTime;
 
-    // Iterate through the fields until reaching the desired field (22nd field in this case)
-    for (int i = 1; i <= 21; ++i) {
-        linestream >> ignore;
-    }
+  // Iterate through the fields until reaching the desired field (22nd field in
+  // this case)
+  for (int i = 1; i <= 21; ++i) {
+    linestream >> ignore;
+  }
 
-    // Extract the start time
-    linestream >> startTime;
+  // Extract the start time
+  linestream >> startTime;
 
-    // Convert the start time from jiffies to seconds
-    startTime /= sysconf(_SC_CLK_TCK);
+  // Convert the start time from jiffies to seconds
+  startTime /= sysconf(_SC_CLK_TCK);
 
-    return UpTime() - startTime;
+  long int processUpTime = UpTime() - startTime;
+  return processUpTime;
 }
 
 vector<string> LinuxParser::CpuUtilization(int pid) {
-  string utime, stime, cutime, cstime, starttime;  
+  string utime, stime, cutime, cstime, starttime;
   vector<string> cpuVariables;
 
   std::ifstream statFile(kProcDirectory + std::to_string(pid) + kStatFilename);
-    if (!statFile.is_open()) {
-        std::cerr << "Error: Unable to open /proc/" << pid << "/stat" << std::endl;
+  if (!statFile.is_open()) {
+    std::cerr << "Error: Unable to open /proc/" << pid << "/stat" << std::endl;
+  }
+
+  // Read the content of the stat file
+  string line;
+  std::getline(statFile, line);
+
+  // Close the file
+  statFile.close();
+
+  // Extract the start time from the content
+  std::istringstream linestream(line);
+  string ignore;  // Variable to ignore unnecessary fields
+
+  for (int i = 1; i <= 22; ++i) {
+    if (i == 14) {
+      linestream >> utime;
+      cpuVariables.emplace_back(utime);
+    } else if (i == 15) {
+      linestream >> stime;
+      cpuVariables.emplace_back(stime);
+    } else if (i == 16) {
+      linestream >> cutime;
+      cpuVariables.emplace_back(cutime);
+    } else if (i == 17) {
+      linestream >> cstime;
+      cpuVariables.emplace_back(cstime);
+    } else if (i == 22) {
+      linestream >> starttime;
+      cpuVariables.emplace_back(starttime);
+    } else {
+      linestream >> ignore;
     }
-
-    // Read the content of the stat file
-    string line;
-    std::getline(statFile, line);
-
-    // Close the file
-    statFile.close();
-
-    // Extract the start time from the content
-    std::istringstream linestream(line);
-    string ignore; // Variable to ignore unnecessary fields
-    
-   for (int i = 1; i <= 22; ++i) {
-        if(i == 14) {
-          linestream >> utime;
-          cpuVariables.emplace_back(utime);
-        } else if (i == 15) {
-          linestream >> stime;
-          cpuVariables.emplace_back(stime);
-        } else if (i == 16) {
-          linestream >> cutime;
-          cpuVariables.emplace_back(cutime);
-        } else if (i == 17) {
-          linestream >> cstime;
-          cpuVariables.emplace_back(cstime);
-        } else if (i == 22) {
-          linestream >> starttime;
-          cpuVariables.emplace_back(starttime);
-        } else { 
-          linestream >> ignore;
-        }
-    }  
+  }
   return cpuVariables;
 }
