@@ -10,6 +10,8 @@
 using std::string;
 using std::to_string;
 using std::vector;
+using LinuxParser::processCPUStates;
+using std::stol;
 
 Process::Process(int pid) 
           : pid_(pid),
@@ -19,7 +21,25 @@ Process::Process(int pid)
 int Process::Pid() { return pid_; }
 
 // TODO: Return this process's CPU utilization
-float Process::CpuUtilization() { return 0; }
+float Process::CpuUtilization() { 
+  long int uptime = LinuxParser::UpTime();
+
+  std::vector<std::string> cpuValues = LinuxParser::CpuUtilization(pid_);
+  
+  long int utime = stol(cpuValues[processCPUStates::kUtime_]);
+  long int stime = stol(cpuValues[processCPUStates::kStime_]);
+  long int cutime = stol(cpuValues[processCPUStates::kCutime_]);
+  long int cstime = stol(cpuValues[processCPUStates::kCstime_]);
+  long int starttime = stol(cpuValues[processCPUStates::kStarttime_]);
+
+  long int total_time = utime + stime + cutime + cstime;
+  long int seconds = uptime - (starttime/sysconf(_SC_CLK_TCK));
+  float CPU_usage = ((static_cast<float>(total_time)/sysconf(_SC_CLK_TCK))/seconds);
+ 
+  
+return CPU_usage;
+}
+
 
 // TODO: Return the command that generated this process
 // string Process::Command() { return string(); }

@@ -264,7 +264,7 @@ long LinuxParser::UpTime(int pid) {
     }
 
     // Read the content of the stat file
-    std::string line;
+    string line;
     std::getline(statFile, line);
 
     // Close the file
@@ -272,7 +272,7 @@ long LinuxParser::UpTime(int pid) {
 
     // Extract the start time from the content
     std::istringstream linestream(line);
-    std::string ignore; // Variable to ignore unnecessary fields
+    string ignore; // Variable to ignore unnecessary fields
     long int startTime;
 
     // Iterate through the fields until reaching the desired field (22nd field in this case)
@@ -287,4 +287,47 @@ long LinuxParser::UpTime(int pid) {
     startTime /= sysconf(_SC_CLK_TCK);
 
     return startTime;
+}
+
+vector<string> LinuxParser::CpuUtilization(int pid) {
+  string utime, stime, cutime, cstime, starttime;  
+  vector<string> cpuVariables;
+
+  std::ifstream statFile(kProcDirectory + std::to_string(pid) + kStatFilename);
+    if (!statFile.is_open()) {
+        std::cerr << "Error: Unable to open /proc/" << pid << "/stat" << std::endl;
+    }
+
+    // Read the content of the stat file
+    string line;
+    std::getline(statFile, line);
+
+    // Close the file
+    statFile.close();
+
+    // Extract the start time from the content
+    std::istringstream linestream(line);
+    string ignore; // Variable to ignore unnecessary fields
+    
+   for (int i = 1; i <= 22; ++i) {
+        if(i == 14) {
+          linestream >> utime;
+          cpuVariables.emplace_back(utime);
+        } else if (i == 15) {
+          linestream >> stime;
+          cpuVariables.emplace_back(stime);
+        } else if (i == 16) {
+          linestream >> cutime;
+          cpuVariables.emplace_back(cutime);
+        } else if (i == 17) {
+          linestream >> cstime;
+          cpuVariables.emplace_back(cstime);
+        } else if (i == 22) {
+          linestream >> starttime;
+          cpuVariables.emplace_back(starttime);
+        } else { 
+          linestream >> ignore;
+        }
+    }  
+  return cpuVariables;
 }
