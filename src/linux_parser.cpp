@@ -187,10 +187,12 @@ vector<string> LinuxParser::CpuUtilization() {
 
 // TODO: Read and return the total number of processes
 int LinuxParser::TotalProcesses() {
-  return getValueFromFile<int>(kProcDirectory + kStatFilename, "processes");
+  return getValueFromFile<int>(kProcDirectory + kStatFilename,
+                               kFilterProcesses);
 }
 int LinuxParser::RunningProcesses() {
-  return getValueFromFile<int>(kProcDirectory + kStatFilename, "procs_running");
+  return getValueFromFile<int>(kProcDirectory + kStatFilename,
+                               kFilterRunningProcesses);
 }
 
 // TODO: Read and return the command associated with a process
@@ -211,7 +213,8 @@ string LinuxParser::Command(int pid) {
 // string LinuxParser::Ram(int pid[[maybe_unused]]) { return string(); }
 string LinuxParser::Ram(int pid) {
   auto ram = getValueFromFile<int>(
-      kProcDirectory + std::to_string(pid) + kStatusFilename, "VmSize:");
+      kProcDirectory + std::to_string(pid) + kStatusFilename,
+      kFilterProcMemory);
   int ramMB = ram * 0.001;
   return std::to_string(ramMB);
 }
@@ -221,7 +224,7 @@ string LinuxParser::Ram(int pid) {
 // string LinuxParser::Uid(int pid[[maybe_unused]]) { return string(); }
 string LinuxParser::Uid(int pid) {
   int uid = getValueFromFile<int>(
-      kProcDirectory + std::to_string(pid) + kStatusFilename, "Uid:");
+      kProcDirectory + std::to_string(pid) + kStatusFilename, kFilterUID);
   return std::to_string(uid);
 }
 

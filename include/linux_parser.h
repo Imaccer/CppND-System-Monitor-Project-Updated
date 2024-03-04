@@ -18,6 +18,12 @@ const std::string kVersionFilename{"/version"};
 const std::string kOSPath{"/etc/os-release"};
 const std::string kPasswordPath{"/etc/passwd"};
 
+// Word filters
+const std::string kFilterProcesses{"processes"};
+const std::string kFilterRunningProcesses{"procs_running"};
+const std::string kFilterUID{"Uid:"};
+const std::string kFilterProcMemory{"VmRSS:"};
+
 // Helpers
 template <typename T>
 T getValueFromFile(const std::string& filePath, const std::string& key);
