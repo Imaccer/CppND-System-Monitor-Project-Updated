@@ -175,16 +175,8 @@ vector<string> LinuxParser::CpuUtilization() {
         if (key == "cpu") {
           linestream >> user >> nice >> system >> idle >> iowait >> irq >>
               softirq >> steal >> guest >> guest_nice;
-          cpuVariables.emplace_back(user);
-          cpuVariables.emplace_back(nice);
-          cpuVariables.emplace_back(system);
-          cpuVariables.emplace_back(idle);
-          cpuVariables.emplace_back(iowait);
-          cpuVariables.emplace_back(irq);
-          cpuVariables.emplace_back(softirq);
-          cpuVariables.emplace_back(steal);
-          cpuVariables.emplace_back(guest);
-          cpuVariables.emplace_back(guest_nice);
+          cpuVariables = {user, nice,    system, idle,  iowait,
+                          irq,  softirq, steal,  guest, guest_nice};
           break;
         }
       }
