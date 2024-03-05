@@ -204,6 +204,11 @@ string LinuxParser::Command(int pid) {
     cmd = line;
     stream.close();
   }
+  if (cmd.length() <= maxLength) {
+    return cmd;  // No need to truncate if the string is already within limits
+  } else {
+    return cmd.substr(0, maxLength - 3) + "...";
+  }
   return cmd;
 }
 

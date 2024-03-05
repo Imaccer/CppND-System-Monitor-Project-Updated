@@ -24,6 +24,9 @@ const std::string kFilterRunningProcesses{"procs_running"};
 const std::string kFilterUID{"Uid:"};
 const std::string kFilterProcMemory{"VmRSS:"};
 
+//  Other constants
+const int maxLength{40};
+
 // Helpers
 template <typename T>
 T getValueFromFile(const std::string& filePath, const std::string& key);
