@@ -26,8 +26,13 @@ vector<Process>& System::Processes() {
   processes_.clear();
 
   for (auto pid : pids) {
-    Process process(pid);
-    processes_.emplace_back(process);
+    //    Process process(pid);
+    // processes_.emplace_back(process);
+    processes_.emplace_back(
+        pid);  //  note, this is equivalent to above commented 2 lines. Process
+               //  constructor gets called by emplace_back when acting on
+               //  processes_ (which is declared as vector of Process of
+               //  objects.
   }
   std::sort(processes_.begin(), processes_.end());
   return processes_;
