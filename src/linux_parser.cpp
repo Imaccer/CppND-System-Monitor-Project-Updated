@@ -31,6 +31,7 @@ T LinuxParser::getValueFromFile(const std::string& filePath,
         break;
       }
     }
+    filestream.close();
   }
   return result;  // Key not found or conversion failed
 }
@@ -54,6 +55,7 @@ string LinuxParser::OperatingSystem() {
         }
       }
     }
+    filestream.close();
   }
   return value;
 }
@@ -67,6 +69,7 @@ string LinuxParser::Kernel() {
     std::getline(stream, line);
     std::istringstream linestream(line);
     linestream >> os >> version >> kernel;
+    stream.close();
   }
   return kernel;
 }
@@ -124,6 +127,7 @@ float LinuxParser::MemoryUtilization() {
         }
       }
     }
+    filestream.close();
   }
   float cachedMemory = Cached + SReclaimable - Shmem;
   float TotalUsedMemory = MemTotal - MemFree;
@@ -142,6 +146,7 @@ long LinuxParser::UpTime() {
     std::getline(stream, line);
     std::istringstream linestream(line);
     linestream >> uptimeStr >> idletimeStr;
+    stream.close();
   }
   uptime = static_cast<long int>(std::stof(uptimeStr));
   return uptime;
@@ -181,6 +186,7 @@ vector<string> LinuxParser::CpuUtilization() {
         }
       }
     }
+    filestream.close();
   }
   return cpuVariables;
 }
@@ -204,6 +210,7 @@ string LinuxParser::Command(int pid) {
   if (stream.is_open()) {
     std::getline(stream, line);
     cmd = line;
+    stream.close();
   }
   return cmd;
 }
@@ -246,6 +253,7 @@ string LinuxParser::User(int pid) {
         }
       }
     }
+    filestream.close();
   }
 
   return "";
